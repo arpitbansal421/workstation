@@ -1,70 +1,190 @@
-# Getting Started with Create React App
+# AI-Powered Worker Productivity Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+##  Overview
 
-## Available Scripts
+This project is a full-stack web application designed to track and visualize worker productivity in a manufacturing setup using structured event data generated from AI-powered CCTV systems.
 
-In the project directory, you can run:
+It processes worker activity events and converts them into meaningful productivity metrics displayed via an interactive dashboard.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+##  Architecture Overview
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 🔹 Frontend
 
-### `npm test`
+* Built using **React.js**
+* Handles UI rendering, charts, and data visualization
+* Fetches data from backend APIs
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🔹 Backend
 
-### `npm run build`
+* Built using **Node.js + Express.js**
+* Exposes REST APIs to process and serve productivity metrics
+* Handles business logic and data aggregation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🔹 Database
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* **MongoDB**
+* Stores worker events, workstation data, and computed metrics
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 🔹 Deployment
 
-### `npm run eject`
+* Frontend → Vercel
+* Backend → Render
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+##  Database Schema
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 1. Workers Collection
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```json
+{
+  "_id": "workerId",
+  "name": "Worker A",
+  "workstationId": "ws1"
+}
+```
 
-## Learn More
+### 2. Workstations Collection
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```json
+{
+  "_id": "ws1",
+  "name": "Assembly Line 1"
+}
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3. Events Collection
 
-### Code Splitting
+```json
+{
+  "_id": "eventId",
+  "workerId": "workerId",
+  "workstationId": "ws1",
+  "eventType": "WORKING | IDLE | BREAK",
+  "timestamp": "2026-04-26T10:00:00Z"
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+##  Metric Definitions
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 1.  Total Working Time
 
-### Making a Progressive Web App
+Total duration when worker is in `WORKING` state.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 2.  Idle Time
 
-### Advanced Configuration
+Time when worker is present but not working.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 3.  Break Time
 
-### Deployment
+Time spent on breaks.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### 4.  Productivity Score
 
-### `npm run build` fails to minify
+```text
+Productivity = (Working Time / Total Time) * 100
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 5.  Workstation Utilization
+
+```text
+Utilization = (Active Time / Total Available Time) * 100
+```
+
+---
+
+## Assumptions & Tradeoffs
+
+### Assumptions
+
+* Each worker is assigned to one workstation
+* Events are received in chronological order
+* No overlapping events for a single worker
+* Fixed number of workers and workstations (as per assignment)
+
+### Tradeoffs
+
+*  Real-time streaming not implemented (batch processing instead)
+*  No authentication for simplicity
+*  Data is assumed clean (no missing/corrupt events handling)
+
+---
+
+##  Theoretical Questions
+
+### 1. How would you scale this system to 10,000 workers?
+
+* Use **message queues (Kafka/RabbitMQ)** for event ingestion
+* Implement **stream processing (Apache Kafka Streams / Spark)**
+* Use **horizontal scaling** with load balancers
+* Store data in **sharded databases**
+
+---
+
+### 2. How would you handle real-time updates?
+
+* Use **WebSockets (Socket.io)**
+* Or **Server-Sent Events (SSE)**
+* Push live updates to frontend dashboard
+
+---
+
+### 3. How would you ensure data accuracy?
+
+* Event validation at ingestion layer
+* Deduplication using unique event IDs
+* Time synchronization using server timestamps
+* Retry mechanisms for failed events
+
+---
+
+### 4. How would you optimize performance?
+
+* Indexing in MongoDB
+* Caching using Redis
+* Aggregation pipelines for metrics
+* Pagination and lazy loading in frontend
+
+---
+
+## Getting Started
+
+### Clone the repo
+
+```bash
+git clone https://github.com/arpitbansal421/workstation.git
+cd workstation
+```
+
+### Install dependencies
+
+#### Frontend
+
+```bash
+cd workstationfrontend
+npm install
+npm start
+```
+
+#### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+---
+
+## Live Links
+
+* Frontend: https://workstation-chi.vercel.app
+* Backend: https://workstation-zo05.onrender.com
+
+---
+
+---
